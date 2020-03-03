@@ -1,0 +1,51 @@
+---
+title: "Class Enrollment"
+author: "Wyatt Hurt"
+date: "3/3/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(gt)
+library(readr)
+library(janitor)
+library(dplyr)
+library(modeest)
+library(tools)
+library(rvest)
+library(scales)
+library(tidycensus)
+library(ggplot2)
+census_api_key("9f9584127dd506cdaf80bdb78927e9c01c12f2b8")
+library(tidyverse)
+library(googlesheets4)
+library(fs)
+library(readxl)
+```
+
+```{r downloading}
+download.file("https://registrar.fas.harvard.edu/files/fas-registrar/files/class_enrollment_summary_by_term_2.25.20_0.xlsx", "./s_2020.xlsx")
+
+download.file("https://registrar.fas.harvard.edu/files/fas-registrar/files/class_enrollment_summary_by_term_3.22.19_0.xlsx", "./s_2019.xlsx")
+```
+
+```{r reading_in}
+s_2020 <- read_excel("s_2020.xlsx", skip = 3) %>%
+  clean_names() %>%
+  filter(! is.na(course_name))
+
+s_2019 <- read_excel("s_2019.xlsx", skip = 3) %>%
+  clean_names() %>%
+  filter(! is.na(course_name))
+```
+
+```{r joining}
+joined <- s_2020 %>%
+anti_join(s_2019, by = c("course_id")) %>%
+  arrange(desc(total)) %>%
+  slice(1:5)
+
+gt(joined)
+```
+
