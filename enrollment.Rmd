@@ -1,12 +1,9 @@
 ---
-title: "Class Enrollment"
-author: "Wyatt Hurt"
-date: "3/3/2020"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 library(gt)
 library(readr)
 library(janitor)
@@ -42,10 +39,25 @@ s_2019 <- read_excel("s_2019.xlsx", skip = 3) %>%
 
 ```{r joining}
 joined <- s_2020 %>%
-anti_join(s_2019, by = c("course_id")) %>%
+anti_join(s_2019, by = "course_id") %>%
+  arrange(desc(total)) %>%
+  slice(1:5) %>%
+  select(course_name, course_department, instructor_full_name, total)
+
+gt(joined) %>%
+  tab_header(title = "Top 5 New Courses at Harvard") %>%
+  cols_label(
+    course_name = "Name", 
+    course_department = "Department", 
+    instructor_full_name = "Instructor", 
+    total = "Total Enrolled")
+```
+
+```{r deprecated, include = FALSE}
+joined <- s_2019 %>%
+anti_join(s_2020, by = "course_id") %>%
   arrange(desc(total)) %>%
   slice(1:5)
 
 gt(joined)
 ```
-
